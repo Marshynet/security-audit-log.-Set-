@@ -3,27 +3,56 @@
 <head>
     <title>System Security Audit</title>
     <style>
-        body { background-color: black; color: #00FF00; font-family: monospace; padding: 20px; }
+        body { background-color: black; color: #00FF00; font-family: monospace; padding: 20px; line-height: 1.6; }
         .warning { color: red; font-weight: bold; font-size: 20px; }
         .blink { animation: blinker 1s linear infinite; }
+        .highlight { color: white; }
+        .countdown-container { font-size: 24px; color: yellow; margin: 20px 0; }
         @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
     <p class="warning blink">[!] UNAUTHORIZED ACCESS DETECTED</p>
     <p>--------------------------------------------------</p>
-    <p>> Initializing Reverse Handshake...</p>
-    <p>> Capturing Browser Metadata... <span style="color:white">[SUCCESS]</span></p>
-    <p>> Extracting Masked IP Address... <span style="color:white">[IN PROGRESS]</span></p>
-    <p>> User-Agent Logged: <span id="ua"></span></p>
-    <p>> Resolution: <span id="res"></span></p>
+    <p>> Initializing Reverse Handshake... <span class="highlight">[DONE]</span></p>
+    <p>> Target IP Located: <span id="fake-ip" class="highlight">192.168.1.1</span></p>
+    <p>> Capturing Browser Metadata... <span class="highlight">[SUCCESS]</span></p>
+    <p>> User-Agent Logged: <span id="ua" class="highlight"></span></p>
+    <p>> Resolution: <span id="res" class="highlight"></span></p>
     <p>--------------------------------------------------</p>
+    
+    <div class="countdown-container">
+        SYSTEM TRACE COMPLETION IN: <span id="timer">60</span>s
+    </div>
+
     <p class="warning">LOGGING SESSION DATA TO LOCAL SERVER...</p>
+    <p>> Packet Transfer: <span id="packets">0</span>kb uploaded...</p>
     <p>DO NOT CLOSE THIS WINDOW OR SYSTEM TRACE WILL BE INTERRUPTED.</p>
 
     <script>
+        // Set User Agent and Resolution
         document.getElementById('ua').innerText = navigator.userAgent;
         document.getElementById('res').innerText = window.screen.width + "x" + window.screen.height;
+
+        // Generate a random "Fake IP"
+        const randomIP = () => Array.from({length: 4}, () => Math.floor(Math.random() * 256)).join('.');
+        document.getElementById('fake-ip').innerText = randomIP();
+
+        // Countdown Timer
+        let timeLeft = 60;
+        const timerElement = document.getElementById('timer');
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.innerText = timeLeft;
+            if (timeLeft <= 0) clearInterval(countdown);
+        }, 1000);
+
+        // Fake Packet Counter for extra "movement"
+        let packets = 0;
+        setInterval(() => {
+            packets += Math.floor(Math.random() * 15);
+            document.getElementById('packets').innerText = packets;
+        }, 300);
     </script>
 </body>
 </html>
