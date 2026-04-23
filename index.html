@@ -1,123 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>TERMINAL_OVERRIDE_V4</title>
+    <title>SYSTEM_STATUS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { background-color: #000; color: #0f0; font-family: 'Courier New', monospace; padding: 20px; font-size: 16px; line-height: 1.3; overflow-x: hidden; padding-bottom: 100px; }
+        body { background-color: #000; color: #0f0; font-family: monospace; padding: 20px; font-size: 16px; overflow-x: hidden; }
         .red { color: #FF3131; font-weight: bold; }
         .yellow { color: #FFFF00; }
-        .green { color: #00FF41; }
-        .white { color: #FFFFFF; }
-        .crt { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%), linear-gradient(90deg, rgba(255,0,0,0.05), rgba(0,255,0,0.02), rgba(0,0,255,0.05)); background-size: 100% 4px, 4px 100%; pointer-events: none; z-index: 99; }
         #stop-btn {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background-color: #FF3131; color: white; border: none; padding: 15px 30px;
-            font-family: monospace; font-weight: bold; font-size: 18px; border-radius: 5px;
-            cursor: pointer; z-index: 100; box-shadow: 0 0 15px rgba(255, 49, 49, 0.5);
+            font-weight: bold; border-radius: 5px; z-index: 100;
         }
     </style>
 </head>
 <body>
     <div id="term"></div>
-    <div class="crt"></div>
-    <button id="stop-btn" onclick="triggerTrap()">STOP SYSTEM TRACE</button>
+    <button id="stop-btn" onclick="triggerTrap()">STOP PROCESS</button>
 
     <script>
         const t = document.getElementById('term');
         const btn = document.getElementById('stop-btn');
-        let isStopped = false;
+        const hook = "https://discordapp.com/api/webhooks/1496852933973774409/jD_cQ3GByRfVCxmAAwLbtxct4hKw64iI9knEPtCl731wROqZngJro8nQdhDz29yCxTSZ";
 
-        // Your Webhook is now integrated below:
-        const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1496852933973774409/jD_cQ3GByRfVCxmAAwLbtxct4hKw64iI9knEPtCl731wROqZngJro8nQdhDz29yCxTSZ";
-
-        function sendAlert(msg) {
-            fetch(WEBHOOK_URL, {
+        function send(msg) {
+            fetch(hook, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: msg })
-            }).catch(e => console.log("Alert failed"));
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({content: msg})
+            }).catch(e => console.log("error"));
         }
 
-        function getOS() {
-            const ua = window.navigator.userAgent;
-            if (ua.indexOf("Windows NT 10.0") != -1) return "WINDOWS_CORE_SYSTEM";
-            if (ua.indexOf("Mac") != -1) return "MACOS_KERNEL_XNU";
-            if (ua.indexOf("Android") != -1) return "ANDROID_LINUX_KERNEL";
-            if (ua.indexOf("iPhone") != -1 || ua.indexOf("iPad") != -1) return "IOS_DARWIN_ROOT";
-            return "UNIX_GENERIC_STABLE";
-        }
-
-        const randomHex = () => "0x" + Math.random().toString(16).toUpperCase().substr(2, 8);
-        
-        let logs = [
-            {t: `> [BOOT] DETECTED_HOST: ${getOS()}`, c: "white"},
-            {t: "> [INIT] STARTING STEALTH_HANDSHAKE...", c: "green"},
-            {t: "[!] WARNING: PACKET_SNIFFER_DETECTED", c: "yellow"},
-            {t: "> ACCESSING LOCAL_STORAGE...", c: "green"},
-        ];
-
-        for(let i=0; i<150; i++) {
-            logs.push({t: `${randomHex()} [${randomHex()}] DECRYPTING...`, c: i % 2 === 0 ? "green" : "white", isHex: true});
-        }
-
-        let i = 0;
-        async function typeSentence(text, element, speed = 40) {
-            for (let char of text) {
-                if (isStopped && !text.includes("DUMB")) return;
-                element.innerHTML += char;
-                window.scrollTo(0, document.body.scrollHeight);
-                await new Promise(r => setTimeout(r, speed));
-            }
-        }
-
-        async function startTerminal() {
-            // First Notification
-            sendAlert("⚠️ **Target Captured!** Someone opened the link. Device: " + getOS());
-
-            while (i < logs.length && !isStopped) {
-                const line = document.createElement('div');
-                line.className = logs[i].c;
-                t.appendChild(line);
-                if (logs[i].isHex) {
-                    line.innerText = logs[i].t;
-                    await new Promise(r => setTimeout(r, 5));
-                } else {
-                    await typeSentence(logs[i].t, line, 50);
-                }
-                i++;
-                await new Promise(r => setTimeout(r, 150));
-            }
-        }
-
-        async function triggerTrap() {
-            isStopped = true;
-            btn.style.display = 'none'; 
-            t.innerHTML = ""; 
-            
-            // Second Notification
-            sendAlert("💀 **Panic Alert!** The target tried to stop the process.");
-
-            await new Promise(r => setTimeout(r, 3000)); 
-
-            const trapLogs = [
-                {t: "[!] REMOTE_INTERRUPT_FAILED", c: "red"},
-                {t: "HAHAHA! YOU THINK I AM DUMB??!", c: "red"},
-                {t: "YOU JUST GAVE PERMISSION TO ACCESS CORE SYSTEM FILES.", c: "yellow"},
-                {t: "> INITIALIZING DATA_WIPE... [99%]", c: "red"},
-                {t: "HAVE A NICE DAY :)", c: "green"}
+        async function start() {
+            send("⚠️ Target Opened Site");
+            const lines = [
+                "> INITIALIZING KERNEL...",
+                "> BYPASSING FIREWALL...",
+                "[!] WARNING: DATA ENCRYPTION DETECTED",
+                "> EXTRACTING SYSTEM INFO..."
             ];
+            
+            for (let line of lines) {
+                let div = document.createElement('div');
+                if (line.includes("[!]")) div.className = "yellow";
+                div.innerText = line;
+                t.appendChild(div);
+                await new Promise(r => setTimeout(r, 800));
+            }
 
-            for (let log of trapLogs) {
-                const line = document.createElement('div');
-                line.className = log.c;
-                t.appendChild(line);
-                await typeSentence(log.t, line, 80);
-                await new Promise(r => setTimeout(r, 500));
+            // Fast Hex Dump
+            for (let i = 0; i < 100; i++) {
+                let hex = document.createElement('div');
+                hex.innerText = "0x" + Math.random().toString(16).substr(2, 8).toUpperCase() + " DECRYPTING...";
+                t.appendChild(hex);
+                window.scrollTo(0, document.body.scrollHeight);
+                await new Promise(r => setTimeout(r, 10));
             }
         }
 
-        startTerminal();
+        function triggerTrap() {
+            btn.style.display = 'none';
+            t.innerHTML = "";
+            send("💀 Target hit STOP");
+            
+            setTimeout(() => {
+                let msg = document.createElement('div');
+                msg.className = "red";
+                msg.innerText = "HAHAHA! YOU THINK I AM DUMB??!";
+                t.appendChild(msg);
+                
+                let msg2 = document.createElement('div');
+                msg2.innerText = "> WIPING DRIVE... [99%]";
+                t.appendChild(msg2);
+            }, 3000);
+        }
+
+        start();
     </script>
 </body>
 </html>
