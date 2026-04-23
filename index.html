@@ -27,24 +27,40 @@
         const t = document.getElementById('term');
         const btn = document.getElementById('stop-btn');
         let isStopped = false;
+
+        // --- DEVICE DETECTION LOGIC ---
+        function getOS() {
+            const ua = window.navigator.userAgent;
+            if (ua.indexOf("Windows NT 10.0") != -1) return "WINDOWS_CORE_SYSTEM";
+            if (ua.indexOf("Mac") != -1) return "MACOS_KERNEL_XNU";
+            if (ua.indexOf("Android") != -1) return "ANDROID_LINUX_KERNEL";
+            if (ua.indexOf("iPhone") != -1 || ua.indexOf("iPad") != -1) return "IOS_DARWIN_ROOT";
+            return "UNIX_GENERIC_STABLE";
+        }
+
+        function getScare() {
+            const os = getOS();
+            if (os.includes("WINDOWS")) return "GRANTING REGISTRY_EDITOR_ADMIN_PRIVILEGES...";
+            if (os.includes("MACOS")) return "BYPASSING FILE_VAULT_ENCRYPTION...";
+            if (os.includes("ANDROID")) return "OVERRIDING DEVELOPER_SETTINGS_PERMISSIONS...";
+            if (os.includes("IOS")) return "EXPLOITING KERNEL_SANDBOX_ESCAPE...";
+            return "ACCESSING ROOT_SYSTEM_FILES...";
+        }
+
         const randomHex = () => "0x" + Math.random().toString(16).toUpperCase().substr(2, 8);
         
         let logs = [
-            {t: "> [BOOT] INITIALIZING KERNEL...", c: "green"},
-            {t: "[!] WARNING: SECURE BOOT BYPASS ACTIVE", c: "yellow"},
-            {t: "> SCANNING LOCAL NETWORK...", c: "green"},
-            {t: `> TARGET FOUND: ${Array.from({length: 4}, () => Math.floor(Math.random() * 256)).join('.')}`, c: "white"},
-            {t: "[CRITICAL] FIREWALL INTERFERENCE DETECTED", c: "red"},
-            {t: "> INJECTING PACKET OVERLOAD...", c: "yellow"},
+            {t: `> [BOOT] DETECTED HOST: ${getOS()}`, c: "white"},
+            {t: "> [INIT] STARTING STEALTH_HANDSHAKE...", c: "green"},
+            {t: "[!] WARNING: PACKET_SNIFFER_ACTIVE", c: "yellow"},
+            {t: "> INJECTING PAYLOAD...", c: "green"},
         ];
 
-        // Adding the long data dump
         for(let i=0; i<150; i++) {
             logs.push({t: `${randomHex()} [${randomHex()}] DECRYPTING...`, c: i % 2 === 0 ? "green" : "white", isHex: true});
         }
 
         let i = 0;
-
         async function typeSentence(text, element, speed = 50) {
             for (let char of text) {
                 if (isStopped) return;
@@ -59,17 +75,14 @@
                 const line = document.createElement('div');
                 line.className = logs[i].c;
                 t.appendChild(line);
-                
-                // If it's hex code, skip typewriter and go fast
                 if (logs[i].isHex) {
                     line.innerText = logs[i].t;
-                    window.scrollTo(0, document.body.scrollHeight);
                     await new Promise(r => setTimeout(r, 5));
                 } else {
-                    await typeSentence(logs[i].t, line, 70);
+                    await typeSentence(logs[i].t, line, 60);
                 }
                 i++;
-                await new Promise(r => setTimeout(r, 300));
+                await new Promise(r => setTimeout(r, 200));
             }
         }
 
@@ -79,13 +92,12 @@
             t.innerHTML = "";
             
             const trapLogs = [
-                {t: "[!] ERROR: INTERRUPT SIGNAL RECEIVED", c: "red"},
-                {t: "HAHAHA! YOU THINK I AM DUMB??!", c: "red"},
-                {t: "YOU JUST GAVE PERMISSION FOR DEVELOPER OPTIONS ACCESS.", c: "yellow"},
-                {t: "> ACCESSING ANDROID_SYSTEM_CORE...", c: "green"},
-                {t: "> OVERRIDING DEVELOPER_SETTINGS...", c: "green"},
-                {t: "> FORMATTING LOCAL DATA... [99%]", c: "red"},
-                {t: "HAVE A NICE DAY :)", c: "green"}
+                {t: "[!] ERROR: REMOTE_INTERRUPT_BLOCK", c: "red"},
+                {t: "NICE TRY. YOU THINK I'M STUPID?", c: "red"},
+                {t: `SYSTEM DETECTED: ${getOS()}`, c: "white"},
+                {t: getScare(), c: "yellow"},
+                {t: "> FORMATTING LOCAL_DRIVE... [99%]", c: "red"},
+                {t: "ENJOY YOUR NEW PAPERWEIGHT. :)", c: "green"}
             ];
 
             for (let log of trapLogs) {
@@ -101,3 +113,4 @@
     </script>
 </body>
 </html>
+
