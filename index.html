@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SYSTEM_STATUS</title>
+    <title>TERMINAL_OVERRIDE_V4</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { background-color: #000; color: #0f0; font-family: monospace; padding: 20px; font-size: 16px; overflow-x: hidden; }
+        body { background-color: #000; color: #0f0; font-family: 'Courier New', monospace; padding: 20px; font-size: 16px; line-height: 1.3; overflow-x: hidden; padding-bottom: 100px; }
         .red { color: #FF3131; font-weight: bold; }
         .yellow { color: #FFFF00; }
+        .green { color: #00FF41; }
+        .white { color: #FFFFFF; }
+        .crt { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%), linear-gradient(90deg, rgba(255,0,0,0.05), rgba(0,255,0,0.02), rgba(0,0,255,0.05)); background-size: 100% 4px, 4px 100%; pointer-events: none; z-index: 99; }
         #stop-btn {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
             background-color: #FF3131; color: white; border: none; padding: 15px 30px;
-            font-weight: bold; border-radius: 5px; z-index: 100;
+            font-family: monospace; font-weight: bold; font-size: 18px; border-radius: 5px;
+            cursor: pointer; z-index: 100; box-shadow: 0 0 15px rgba(255, 49, 49, 0.5);
         }
     </style>
 </head>
 <body>
     <div id="term"></div>
-    <button id="stop-btn" onclick="triggerTrap()">STOP PROCESS</button>
+    <div class="crt"></div>
+    <button id="stop-btn" onclick="triggerTrap()">STOP SYSTEM TRACE</button>
 
     <script>
         const t = document.getElementById('term');
         const btn = document.getElementById('stop-btn');
+        let isStopped = false;
         const hook = "https://discordapp.com/api/webhooks/1496852933973774409/jD_cQ3GByRfVCxmAAwLbtxct4hKw64iI9knEPtCl731wROqZngJro8nQdhDz29yCxTSZ";
 
         function send(msg) {
@@ -28,51 +34,84 @@
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({content: msg})
-            }).catch(e => console.log("error"));
+            }).catch(e => {});
+        }
+
+        function getOS() {
+            const ua = window.navigator.userAgent;
+            if (ua.indexOf("Windows NT 10.0") != -1) return "WINDOWS_CORE_10";
+            if (ua.indexOf("Mac") != -1) return "MACOS_X_KERNEL";
+            if (ua.indexOf("Android") != -1) return "ANDROID_LINUX_OS";
+            if (ua.indexOf("iPhone") != -1) return "IOS_APPLE_MOBILE";
+            return "UNIX_GENERIC_STABLE";
+        }
+
+        const fakeIP = () => `${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}.${Math.floor(Math.random()*255)}`;
+        const randomHex = () => "0x" + Math.random().toString(16).toUpperCase().substr(2, 8);
+
+        async function typeSentence(text, element, speed = 50) {
+            for (let char of text) {
+                if (isStopped && !text.includes("DUMB")) return;
+                element.innerHTML += char;
+                window.scrollTo(0, document.body.scrollHeight);
+                await new Promise(r => setTimeout(r, speed));
+            }
         }
 
         async function start() {
-            send("⚠️ Target Opened Site");
-            const lines = [
-                "> INITIALIZING KERNEL...",
-                "> BYPASSING FIREWALL...",
-                "[!] WARNING: DATA ENCRYPTION DETECTED",
-                "> EXTRACTING SYSTEM INFO..."
-            ];
+            send("⚠️ **Target Captured!** Device: " + getOS());
             
-            for (let line of lines) {
-                let div = document.createElement('div');
-                if (line.includes("[!]")) div.className = "yellow";
-                div.innerText = line;
-                t.appendChild(div);
-                await new Promise(r => setTimeout(r, 800));
+            let initialLogs = [
+                {t: `> [BOOT] HOST_DETECTED: ${getOS()}`, c: "white"},
+                {t: `> [INFO] TARGET_IP: ${fakeIP()}`, c: "white"},
+                {t: "> [INIT] BYPASSING KERNEL_LOCK...", c: "green"},
+                {t: "[!] WARNING: FIREWALL_BREECH_DETECTED", c: "yellow"},
+                {t: "> INJECTING PAYLOAD...", c: "green"},
+            ];
+
+            for (let log of initialLogs) {
+                const line = document.createElement('div');
+                line.className = log.c;
+                t.appendChild(line);
+                await typeSentence(log.t, line, 60);
+                await new Promise(r => setTimeout(r, 300));
             }
 
             // Fast Hex Dump
-            for (let i = 0; i < 100; i++) {
-                let hex = document.createElement('div');
-                hex.innerText = "0x" + Math.random().toString(16).substr(2, 8).toUpperCase() + " DECRYPTING...";
-                t.appendChild(hex);
+            for (let i = 0; i < 200; i++) {
+                if(isStopped) break;
+                const hexLine = document.createElement('div');
+                hexLine.className = i % 2 === 0 ? "green" : "white";
+                hexLine.innerText = `${randomHex()} [${randomHex()}] DECRYPTING...`;
+                t.appendChild(hexLine);
                 window.scrollTo(0, document.body.scrollHeight);
                 await new Promise(r => setTimeout(r, 10));
             }
         }
 
-        function triggerTrap() {
+        async function triggerTrap() {
+            isStopped = true;
             btn.style.display = 'none';
             t.innerHTML = "";
-            send("💀 Target hit STOP");
+            send("💀 **Target Panicked!** Clicked STOP.");
             
-            setTimeout(() => {
-                let msg = document.createElement('div');
-                msg.className = "red";
-                msg.innerText = "HAHAHA! YOU THINK I AM DUMB??!";
-                t.appendChild(msg);
-                
-                let msg2 = document.createElement('div');
-                msg2.innerText = "> WIPING DRIVE... [99%]";
-                t.appendChild(msg2);
-            }, 3000);
+            await new Promise(r => setTimeout(r, 3000));
+
+            const trapLogs = [
+                {t: "[!] ERROR: REMOTE_INTERRUPT_FAILED", c: "red"},
+                {t: "HAHAHA! YOU THINK I AM DUMB??!", c: "red"},
+                {t: `ACCESSING ${getOS()} SYSTEM FILES...`, c: "yellow"},
+                {t: "> FORMATTING LOCAL_DRIVE... [99%]", c: "red"},
+                {t: "HAVE A NICE DAY :)", c: "green"}
+            ];
+
+            for (let log of trapLogs) {
+                const line = document.createElement('div');
+                line.className = log.c;
+                t.appendChild(line);
+                await typeSentence(log.t, line, 100);
+                await new Promise(r => setTimeout(r, 800));
+            }
         }
 
         start();
