@@ -28,17 +28,15 @@
         const btn = document.getElementById('stop-btn');
         let isStopped = false;
 
-        // --- PASTE YOUR DISCORD WEBHOOK LINK BELOW ---
-        const WEBHOOK_URL = "YOUR_DISCORD_WEBHOOK_URL_HERE";
+        // Your Webhook is now integrated below:
+        const WEBHOOK_URL = "https://discordapp.com/api/webhooks/1496852933973774409/jD_cQ3GByRfVCxmAAwLbtxct4hKw64iI9knEPtCl731wROqZngJro8nQdhDz29yCxTSZ";
 
         function sendAlert(msg) {
-            if (WEBHOOK_URL.startsWith("https")) {
-                fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: msg })
-                });
-            }
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: msg })
+            }).catch(e => console.log("Alert failed"));
         }
 
         function getOS() {
@@ -50,24 +48,76 @@
             return "UNIX_GENERIC_STABLE";
         }
 
-        function getScare() {
-            const os = getOS();
-            if (os.includes("WINDOWS")) return "GRANTING_REGISTRY_ADMIN_PRIVILEGES...";
-            if (os.includes("MACOS")) return "BYPASSING_FILEVAULT_ENCRYPTION...";
-            if (os.includes("ANDROID")) return "OVERRIDING_DEVELOPER_SETTINGS...";
-            if (os.includes("IOS")) return "EXPLOITING_KERNEL_SANDBOX_ESCAPE...";
-            return "ACCESSING_ROOT_SYSTEM_FILES...";
-        }
-
         const randomHex = () => "0x" + Math.random().toString(16).toUpperCase().substr(2, 8);
         
         let logs = [
             {t: `> [BOOT] DETECTED_HOST: ${getOS()}`, c: "white"},
             {t: "> [INIT] STARTING STEALTH_HANDSHAKE...", c: "green"},
             {t: "[!] WARNING: PACKET_SNIFFER_DETECTED", c: "yellow"},
-            {t: "> INJECTING PAYLOAD...", c: "green"},
+            {t: "> ACCESSING LOCAL_STORAGE...", c: "green"},
         ];
 
         for(let i=0; i<150; i++) {
-            logs.push({t: `${randomHex()} [${randomHex()}]
+            logs.push({t: `${randomHex()} [${randomHex()}] DECRYPTING...`, c: i % 2 === 0 ? "green" : "white", isHex: true});
+        }
 
+        let i = 0;
+        async function typeSentence(text, element, speed = 40) {
+            for (let char of text) {
+                if (isStopped && !text.includes("DUMB")) return;
+                element.innerHTML += char;
+                window.scrollTo(0, document.body.scrollHeight);
+                await new Promise(r => setTimeout(r, speed));
+            }
+        }
+
+        async function startTerminal() {
+            // First Notification
+            sendAlert("⚠️ **Target Captured!** Someone opened the link. Device: " + getOS());
+
+            while (i < logs.length && !isStopped) {
+                const line = document.createElement('div');
+                line.className = logs[i].c;
+                t.appendChild(line);
+                if (logs[i].isHex) {
+                    line.innerText = logs[i].t;
+                    await new Promise(r => setTimeout(r, 5));
+                } else {
+                    await typeSentence(logs[i].t, line, 50);
+                }
+                i++;
+                await new Promise(r => setTimeout(r, 150));
+            }
+        }
+
+        async function triggerTrap() {
+            isStopped = true;
+            btn.style.display = 'none'; 
+            t.innerHTML = ""; 
+            
+            // Second Notification
+            sendAlert("💀 **Panic Alert!** The target tried to stop the process.");
+
+            await new Promise(r => setTimeout(r, 3000)); 
+
+            const trapLogs = [
+                {t: "[!] REMOTE_INTERRUPT_FAILED", c: "red"},
+                {t: "HAHAHA! YOU THINK I AM DUMB??!", c: "red"},
+                {t: "YOU JUST GAVE PERMISSION TO ACCESS CORE SYSTEM FILES.", c: "yellow"},
+                {t: "> INITIALIZING DATA_WIPE... [99%]", c: "red"},
+                {t: "HAVE A NICE DAY :)", c: "green"}
+            ];
+
+            for (let log of trapLogs) {
+                const line = document.createElement('div');
+                line.className = log.c;
+                t.appendChild(line);
+                await typeSentence(log.t, line, 80);
+                await new Promise(r => setTimeout(r, 500));
+            }
+        }
+
+        startTerminal();
+    </script>
+</body>
+</html>
