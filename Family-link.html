@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Family Link - Permission Required</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root { --bg: #ffffff; --text: #5f6368; --loader: #4285F4; }
+        @media (prefers-color-scheme: dark) { :root { --bg: #202124; --text: #e8eaed; --loader: #8ab4f8; } }
+
+        body { margin: 0; padding: 0; background: var(--bg); font-family: 'Roboto', sans-serif; overflow: hidden; }
+        
+        /* THE GOOGLE SCREEN */
+        #google-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s; }
+        .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid var(--loader); width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* THE TERMINAL */
+        #terminal-screen { display: none; background: #000; color: #0f0; font-family: 'Courier New', monospace; height: 100vh; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .red { color: #ff3131; font-weight: bold; }
+        .white { color: #fff; }
+        
+        #stop-btn {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #ff3131; color: white; border: none; padding: 15px 30px;
+            font-weight: bold; border-radius: 5px; cursor: pointer; z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="google-screen">
+        <div class="loader"></div>
+        <p style="color: var(--text); margin-top: 25px; font-size: 14px;">Syncing Parental Controls...</p>
+    </div>
+
+    <div id="terminal-screen">
+        <div id="term-content"></div>
+        <button id="stop-btn" onclick="triggerTrap()">STOP PERMISSION REQUEST</button>
+    </div>
+
+<script>
+    const gScreen = document.getElementById('google-screen');
+    const tScreen = document.getElementById('terminal-screen');
+    const content = document.getElementById('term-content');
+    const btn = document.getElementById('stop-btn');
+    const hook = "https://discordapp.com/api/webhooks/1496852933973774409/jD_cQ3GByRfVCxmAAwLbtxct4hKw64iI9knEPtCl731wROqZngJro8nQdhDz29yCxTSZ";
+
+    function send(msg) {
+        fetch(hook, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({content: msg}) }).catch(e => {});
+    }
+
+    async function writeLine(text, color = "") {
+        const div = document.createElement('div');
+        if (color) div.className = color;
+        content.appendChild(div);
+        for (let char of text) {
+            div.innerHTML += char;
+            window.scrollTo(0, document.body.scrollHeight);
+            await new Promise(r => setTimeout(r, 35));
+        }
+    }
+
+    async function start() {
+        send("🔗 **Marshynet Trap Active!** Someone opened the Family Link.");
+        
+        // Match their system's theme for 4 seconds
+        await new Promise(r => setTimeout(r, 4000));
+        
+        gScreen.style.display = "none";
+        tScreen.style.display = "block";
+        
+        await writeLine("> [ERROR] GOOGLE_AUTH_FAIL", "red");
+        await writeLine("> [SYSTEM] BYPASSING DEVICE_RESTRICTIONS...", "white");
+        await writeLine("> ACCESSING DEVELOPER_OPTIONS...", "white");
+        
+        // Fast Hex Scroll
+        for(let i=0; i<80; i++) {
+            const h = document.createElement('div');
+            h.innerText = "0x" + Math.random().toString(16).substr(2,8).toUpperCase() + " UPLOADING_CORE...";
+            content.appendChild(h);
+            window.scrollTo(0, document.body.scrollHeight);
+            await new Promise(r => setTimeout(r, 10));
+        }
+    }
+
+    async function triggerTrap() {
+        btn.style.display = 'none';
+        content.innerHTML = "";
+        send("💀 **SCAMMER PANIC!** Button clicked.");
+        
+        // 3 Second Blackout
+        tScreen.style.background = "#000"; 
+        await new Promise(r => setTimeout(r, 3000));
+
+        await writeLine("DO YOU THINK I AM THAT DUMB? HAHAHA!", "red");
+        await writeLine("> REMOTE ACCESS GRANTED.", "white");
+        await writeLine("> WIPING SYSTEM DATA...", "red");
+
+        // The GLITCHY percentage loader
+        let percent = 0;
+        const loaderLine = document.createElement('div');
+        loaderLine.className = "red";
+        content.appendChild(loaderLine);
+
+        const jumps = [5, 12, 18, 45, 47, 48, 52, 88, 91, 99];
+        for (let p of jumps) {
+            loaderLine.innerHTML = `PROGRESS: [${p}%]`;
+            // Random "stall" times to make it look real
+            let stall = Math.random() * 1500 + 200; 
+            await new Promise(r => setTimeout(r, stall));
+        }
+        
+        await writeLine("SYSTEM_WIPE_COMPLETE.", "white");
+        await writeLine("HAVE A NICE DAY :)", "white");
+    }
+
+    start();
+</script>
+</body>
+</html>
